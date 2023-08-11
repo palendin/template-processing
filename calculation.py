@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import r2_score
 import os
 
-def hydroxyproline_assay_calc(df):
+def hydroxyproline_assay_calc(df,save_img_path):
 
     # normalize reading
     blank_abs = df[df['sample_type'] == 'blank']['abs'].mean()
@@ -31,12 +31,13 @@ def hydroxyproline_assay_calc(df):
 
     # plot scatter vs predicted
     #print(standard[['normalized_abs']], standard[['ug/well']])
-    plt.scatter(standard[['normalized_abs']], standard[['ug/well']], color='g')
+    standard_ug_well = pd.to_numeric(standard['ug/well'])
+    plt.scatter(standard[['normalized_abs']], standard_ug_well, color='g')
     plt.plot(standard[['normalized_abs']], model.predict(standard[['normalized_abs']]),color='k')
     plt.text(0.4, 0.2, f'r_squared= {round(r_squared,2)}', style='italic')
     plt.xlabel('normalized absorbance')
     plt.ylabel('ug/well')
-    plt.savefig(os.path.join(os.path.dirname(__file__), 'standard_plot.png'))
+    plt.savefig(os.path.join(save_img_path, 'standard_plot.png'))
     plt.close()
     #plt.show()
 
@@ -78,16 +79,16 @@ def hydroxyproline_assay_calc(df):
     plt.errorbar(biopsy_mean['hide_ID'], biopsy_mean['mg/biopsy mean'], yerr=biopsy_mean['mg/biopsy std'], fmt='o', color ='r')
     plt.xlabel('hide_ID')
     plt.ylabel('avg mg/biopsy')
-    plt.savefig(os.path.join(os.path.dirname(__file__), 'biopsy_results.png'))
+    plt.savefig(os.path.join(save_img_path, 'biopsy_results.png'))
     plt.close()
     # plt.show()
     #print(average_abs_per_sample)
     
     return standard, samples, biopsy_mean
 
-if __name__ == "__main__":
-    df = pd.read_csv('test_HP_calc.csv')
-    standard, samples, biopsy_results = hydroxyproline_assay_calc(df)
+# if __name__ == "__main__":
+#     df = pd.read_csv('test_HP_calc.csv')
+#     standard, samples, biopsy_results = hydroxyproline_assay_calc(df)
 #print(average_per_sample)
 
     # save CSV for standard, sample, and average result tables
