@@ -34,22 +34,20 @@ def processing(root_directory):
             #     print(f" - {file_name}")
 
             # have a text file to indicate which folder has been processed
-            remembered_folders_file = 'processed_files.txt'
-            with open(remembered_folders_file, 'r+') as f:
-                if folder_path not in f.read():
-                    f.write(folder_path + ',')     
-                    pass
-                else:
-                    continue
+            # remembered_folders_file = 'processed_files.txt'
+            # with open(remembered_folders_file, 'r+') as f:
+            #     if folder_path not in f.read():
+            #         f.write(folder_path + ',')     
+            #         pass
+            #     else:
+            #         continue
 
             try:
             # # Print the file names in the current subfolder
             # for file_name in os.listdir(folder_path):
             #     print(f" - {file_name}")
-
                 sample_layout = pd.read_excel(folder_path+'/' + 'sample_layout.xlsx',engine='openpyxl',sheet_name=None, skiprows=0) #skip the first row which is the indexes of the well
                 measurements = pd.read_excel(folder_path+'/' + 'abs_reading.xlsx',engine='openpyxl',sheet_name=None, skiprows=0) #skip the first row which is the indexes of the well
-
             except:
                 continue
             
@@ -59,6 +57,7 @@ def processing(root_directory):
             for sheet_name in sample_layout:
                 if sheet_name != 'Samples':
                     # Column names
+                    print(sheet_name)
                     column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type','pilot_batch','tissue','hide_ID','hide_replicate',
                                     'avg loaded weight mg','avg empty weight mg','net weight mg','operator', 'ug/well', 'media_type', 'scaffold_type', 'date']
                     
@@ -131,12 +130,13 @@ def processing(root_directory):
 
             # save the standard and samples only dataframes to csv to respective folder
             #combined.to_csv(folder_path + '/' + 'test.csv')
+            print('saving')
             samples.to_csv(folder_path + '/' + 'sample.csv')
             standard.to_csv(folder_path + '/' + 'standard.csv')
             biopsy_results.to_csv(folder_path + '/' + 'biopsy_result.csv')
 
-# if __name__ == "__main__":
-#     path = resource_path('HP_assay')
-#     processing(path)
+if __name__ == "__main__":
+    path = resource_path('HP_assay')
+    processing(path)
 
 

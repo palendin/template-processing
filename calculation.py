@@ -31,9 +31,14 @@ def hydroxyproline_assay_calc(df):
 
     # plot scatter vs predicted
     #print(standard[['normalized_abs']], standard[['ug/well']])
-    #plt.scatter(standard[['normalized_abs']], standard[['ug/well']], color='g')
-    # plt.plot(standard[['normalized_abs']], model.predict(standard[['normalized_abs']]),color='k')
-    # plt.show()
+    plt.scatter(standard[['normalized_abs']], standard[['ug/well']], color='g')
+    plt.plot(standard[['normalized_abs']], model.predict(standard[['normalized_abs']]),color='k')
+    plt.text(0.4, 0.2, f'r_squared= {round(r_squared,2)}', style='italic')
+    plt.xlabel('normalized absorbance')
+    plt.ylabel('ug/well')
+    plt.savefig(os.path.join(os.path.dirname(__file__), 'standard_plot.png'))
+    plt.close()
+    #plt.show()
 
 
     # table of samples only (raw data)
@@ -69,10 +74,14 @@ def hydroxyproline_assay_calc(df):
     biopsy_mean['% percent_collagen'] = (biopsy_mean['mg/biopsy mean']/(biopsy_mean['% hydroxyproline_in_collagen']/100))/(biopsy_mean['net weight mg']-biopsy_mean['scaffold weight mg'])*100
     #print(biopsy_mean)
 
-    # plt.bar(biopsy_mean['hide_ID'],biopsy_mean['mg/biopsy mean'])
-    # plt.errorbar(biopsy_mean['hide_ID'], biopsy_mean['mg/biopsy mean'], yerr=biopsy_mean['mg/biopsy std'], fmt='o', color ='r')
+    plt.bar(biopsy_mean['hide_ID'],biopsy_mean['mg/biopsy mean'])
+    plt.errorbar(biopsy_mean['hide_ID'], biopsy_mean['mg/biopsy mean'], yerr=biopsy_mean['mg/biopsy std'], fmt='o', color ='r')
+    plt.xlabel('hide_ID')
+    plt.ylabel('avg mg/biopsy')
+    plt.savefig(os.path.join(os.path.dirname(__file__), 'biopsy_results.png'))
+    plt.close()
     # plt.show()
-#print(average_abs_per_sample)
+    #print(average_abs_per_sample)
     
     return standard, samples, biopsy_mean
 
