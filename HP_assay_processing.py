@@ -22,6 +22,7 @@ def resource_path(relative_path):
     return path
     
 def processing(root_directory):
+    print(root_directory)
     # Loop through file in directory 
     for folder_name in os.listdir(root_directory):
         folder_path = os.path.join(root_directory, folder_name)
@@ -34,13 +35,13 @@ def processing(root_directory):
             #     print(f" - {file_name}")
 
             # have a text file to indicate which folder has been processed
-            remembered_folders_file = 'processed_files.txt'
-            with open(remembered_folders_file, 'r+') as f:
-                if folder_path not in f.read():
-                    f.write(folder_path + ',')     
-                    pass
-                else:
-                    continue
+            # remembered_folders_file = 'processed_files.txt'
+            # with open(remembered_folders_file, 'r+') as f:
+            #     if folder_path not in f.read():
+            #         f.write(folder_path + ',')     
+            #         pass
+            #     else:
+            #         continue
 
             try:
             # # Print the file names in the current subfolder
@@ -51,14 +52,16 @@ def processing(root_directory):
             except:
                 continue
             
-            # ------------------- format sample layout ----------------------------
+            # ------------------- format sample layout ----------------------------      update the format sample layout code from wayne's PC
             combined_layout = pd.DataFrame()
             layout_df_list = []
             for sheet_name in sample_layout:
                 if sheet_name != 'Samples':
                     # Column names
-                    column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type','pilot_batch','tissue','hide_ID','hide_replicate',
-                                    'avg loaded weight mg','avg empty weight mg','net weight mg','operator', 'ug/well', 'media_type', 'scaffold_type', 'date']
+                    column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type','sample_lot','hide_ID','culture_date', 
+                                    'biopsy_replicate', 'biopsy_diameter_mm', 'loaded_weight1_mg', 'loaded_weight2_mg', 
+                                    'tube_weight1_mg', 'tube_weight2_mg','operator', 'std_conc_ug_per_well', 'media_type', 
+                                    'scaffold_type', 'reaction_date']
                     
                     # drop the rows/columns and expand into appropriate dataframe
                     df = sample_layout[sheet_name].iloc[0:,1:].reset_index(level=0,drop=True)
@@ -123,8 +126,7 @@ def processing(root_directory):
             #final_layout.to_csv('data.csv')
 
             # run calculation
-            standard, samples, biopsy_results = hydroxyproline_assay_calc(final_layout,folder_path)
-            #print(biopsy_results)
+            standard, samples, biopsy_results, control = hydroxyproline_assay_calc(final_layout,folder_path)
         
 
             # save the standard and samples only dataframes to csv to respective folder
@@ -132,6 +134,8 @@ def processing(root_directory):
             samples.to_csv(folder_path + '/' + 'sample.csv')
             standard.to_csv(folder_path + '/' + 'standard.csv')
             biopsy_results.to_csv(folder_path + '/' + 'biopsy_result.csv')
+            control.to_csv(folder_path + '/' + 'control.csv')
+
 
 if __name__ == "__main__":
     path = resource_path('HP_assay')

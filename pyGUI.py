@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from HP_assay_processing import processing, resource_path
+os.chdir(sys._MEIPASS)
 
 # define a class that inherits all the functionalities that QWidget provides, so when we use Qwidget, we dont need to specify the method first
 class Run_assay(QWidget):
