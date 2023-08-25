@@ -40,7 +40,7 @@ def hydroxyproline_assay_calc(df,save_img_path):
     plt.close()
     #plt.show() 
 
-    # --------------table of gelatin only----------------
+    # --------------table of gelatin control only----------------
     control = df[df['sample_type'] == 'control']
     control['ug/well']= control['normalized_abs']*slope+intercept
 
@@ -51,7 +51,7 @@ def hydroxyproline_assay_calc(df,save_img_path):
     
     avg_conc_per_control = control.groupby(['experiment_ID','sample_ID'], squeeze=True).apply(lambda x: ((x['ug/well'].sum()- x['ug/well'].max()-x['ug/well'].min())/2)).reset_index(name='ug/well')
     avg_conc_per_control['std_conc_ug_per_well'] = std_conc_per_control['std_conc_ug_per_well']
-    print(avg_conc_per_control)
+    #print(avg_conc_per_control)
 
     gelatin_model = LinearRegression()
     gelatin_model.fit(avg_conc_per_control[['std_conc_ug_per_well']], avg_conc_per_control[['ug/well']])
@@ -66,8 +66,8 @@ def hydroxyproline_assay_calc(df,save_img_path):
     plt.scatter(avg_conc_per_control[['std_conc_ug_per_well']], avg_conc_per_control[['ug/well']], color='g')
     plt.plot(avg_conc_per_control[['std_conc_ug_per_well']],gelatin_model.predict(avg_conc_per_control[['std_conc_ug_per_well']]),color='k')
     plt.text(0.4, 0.2, f'r_squared= {round(r_squared,2)}', style='italic')
-    plt.xlabel('thereotical control ug/well')
-    plt.ylabel('diluted control conc ug/well * 10') # need to sort out some conversion issues with Rui
+    plt.xlabel('thereotical hydroxyproline ug/well')
+    plt.ylabel('hydroxyproline in gelatin ug/well') # need to sort out some conversion issues with Rui
     plt.savefig(os.path.join(save_img_path, 'control_plot.png'))
     plt.close()
 

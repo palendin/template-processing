@@ -53,28 +53,64 @@ def processing(root_directory):
                 continue
             
             # ------------------- format sample layout ----------------------------      update the format sample layout code from wayne's PC
-            combined_layout = pd.DataFrame()
+            digestion_layout_df_list = []
             layout_df_list = []
-            for sheet_name in sample_layout:
-                if sheet_name != 'Samples':
-                    # Column names
-                    column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type','sample_lot','hide_ID','culture_date', 
+
+            column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type','sample_lot','hide_ID','culture_date', 
                                     'biopsy_replicate', 'biopsy_diameter_mm', 'loaded_weight1_mg', 'loaded_weight2_mg', 
                                     'tube_weight1_mg', 'tube_weight2_mg','operator', 'std_conc_ug_per_well', 'media_type', 
                                     'scaffold_type', 'reaction_date']
+            
+            for i, sheet_name in enumerate(sample_layout):
+                
+                # need to combine digestion sheet
+
+                # process digestion samples layout
+                if sheet_name == 'Digestion' + str(i):
+                    #print(sheet_name)
+                    digestion_layout = sample_layout[sheet_name].iloc[1:7,2:12] # start at 1 because first row is already skipped.
+                    digestion_layout = digestion_layout.values
+
+                    # add row and column name for 6x10 matrix
+                    row = ['B', 'C', 'D','E','F','G']
+                    column = ['2','3','4','5','6','7','8','9','10','11']
+
+                    # Convert matrices into DataFrames with row and column names
+                    digestion_loc_df = pd.DataFrame(digestion_layout, index=row, columns=column)
+                    digestion_loc_df = digestion_loc_df.reset_index().melt(id_vars='index', var_name='column_name', value_name='well_info')
                     
+                    digestion_info = digestion_loc_df.iloc[0:,2:].reset_index(level=0,drop=True)
+                    digestion_info = digestion_info.melt()['value'].str.split(',',expand=True)
+                    
+                    # rename column
+                    for i, col_name in enumerate(digestion_info.columns):
+                        digestion_info.rename(columns = {col_name: column_names[i]}, inplace = True)
+                    
+                    # add location to the digestion dataframe
+                    digestion_location = digestion_loc_df['index'] + digestion_loc_df['column_name']
+                    digestion_info.insert(loc = 2, column = 'location', value = digestion_location)
+                    digestion_info = digestion_info[digestion_info['ID'].str.len() > 0 ]
+
+                    digestion_info['sheet_name'] = sheet_name
+                    
+                    # put dataframes into a list
+                    digestion_layout_df_list.append(digestion_info)
+
+                    # combine dataframes with single row of header
+                    digestion_layout_df = pd.concat(digestion_layout_df_list, ignore_index=True)[digestion_info.columns]
+
+
+                # process samples from well plates that will be combined with absorbance measurements later
+                if sheet_name != 'Samples' and sheet_name.find('Digestion') == -1:
                     # drop the rows/columns and expand into appropriate dataframe
                     df = sample_layout[sheet_name].iloc[0:,1:].reset_index(level=0,drop=True)
                     df = df.melt()['value'].str.split(',',expand=True)
-
-                    # combine dataframes into single dataframe
-                    combined_layout = combined_layout.append(df)
 
                     # put dataframes into a list
                     layout_df_list.append(df)
 
                     # combine dataframes with single row of header
-                    layout_df = pd.concat(layout_df_list, ignore_index=True)[combined_layout.columns]
+                    layout_df = pd.concat(layout_df_list, ignore_index=True)[df.columns]
             
             # replace header
             for i, col_name in enumerate(layout_df.columns):
@@ -86,15 +122,15 @@ def processing(root_directory):
             layout_df['digest volume ul'] = 1000
             layout_df['digest sample volume ul'] = 20
             
+            
             #  # ------------------- format absorbance measurement layout ----------------------------
             # empty dataframe for combining multiple sheets together    
-            combined_abs = pd.DataFrame()
             abs_df_list = []
 
             # loop through each sheet in excel file
             for sheet_name in measurements:
                 if sheet_name != 'General':
-                    #df = measurements[sheet_name].iloc[:,1:]
+                    # ignore 1st row and 1st column (recall first row is skipped already)
                     df = measurements[sheet_name].iloc[0:,1:]
                     df = df.values
                     row = ['A', 'B', 'C', 'D','E','F','G','H']
@@ -109,7 +145,6 @@ def processing(root_directory):
 
                     # Add sheet_name column to each DataFrame
                     df_converted['sheet_name'] = sheet_name
-                    combined_abs = combined_abs.append(df_converted)
 
                     # put dataframes into a list
                     abs_df_list.append(df_converted)
@@ -123,7 +158,7 @@ def processing(root_directory):
             
             # join layout and abs measurements together
             final_layout = pd.concat([layout_df, combined_abs_df], axis=1)
-            #final_layout.to_csv('data.csv')
+   
 
             # run calculation
             standard, samples, biopsy_results, control = hydroxyproline_assay_calc(final_layout,folder_path)
@@ -135,6 +170,7 @@ def processing(root_directory):
             standard.to_csv(folder_path + '/' + 'standard.csv')
             biopsy_results.to_csv(folder_path + '/' + 'biopsy_result.csv')
             control.to_csv(folder_path + '/' + 'control.csv')
+            digestion_layout_df.to_csv(folder_path + '/' + 'digestion_layout.csv')
 
 
 if __name__ == "__main__":
