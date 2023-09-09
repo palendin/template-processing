@@ -1,0 +1,13 @@
+,ID,experiment_ID,sample_ID,sample_type,sample_lot,hide_ID,culture_date,biopsy_replicate,biopsy_diameter_mm,loaded_weight1_mg,loaded_weight2_mg,tube_weight1_mg,tube_weight2_mg,operator,std_conc_ug_per_well,media_type,biomaterial_ID,reaction_date,homogenate volume ul,homogenate sample volume ul,digest volume ul,digest sample volume ul,abs,sheet_name,location,data check,normalized_abs,r_squared
+0,4,HP1,S0,standard,,,,,,,,,,GU,0,,,07-26-2023,500,100,1000,20,0.083,Plate1,E7,,0.018000000000000002,0.9951543336568098
+1,4,HP1,S0,standard,,,,,,,,,,GU,0,,,07-26-2023,500,100,1000,20,0.085,Plate1,F7,,0.020000000000000004,0.9951543336568098
+2,5,HP1,S1,standard,,,,,,,,,,GU,0.2,,,07-26-2023,500,100,1000,20,0.302,Plate1,E8,,0.237,0.9951543336568098
+3,5,HP1,S1,standard,,,,,,,,,,GU,0.2,,,07-26-2023,500,100,1000,20,0.313,Plate1,F8,,0.248,0.9951543336568098
+4,6,HP1,S2,standard,,,,,,,,,,GU,0.4,,,07-26-2023,500,100,1000,20,0.516,Plate1,E9,,0.451,0.9951543336568098
+5,6,HP1,S2,standard,,,,,,,,,,GU,0.4,,,07-26-2023,500,100,1000,20,0.497,Plate1,F9,,0.432,0.9951543336568098
+6,7,HP1,S3,standard,,,,,,,,,,GU,0.6,,,07-26-2023,500,100,1000,20,0.754,Plate1,E10,,0.6890000000000001,0.9951543336568098
+7,7,HP1,S3,standard,,,,,,,,,,GU,0.6,,,07-26-2023,500,100,1000,20,0.74,Plate1,F10,,0.675,0.9951543336568098
+8,8,HP1,S4,standard,,,,,,,,,,GU,0.8,,,07-26-2023,500,100,1000,20,0.965,Plate1,E11,,0.8999999999999999,0.9951543336568098
+9,8,HP1,S4,standard,,,,,,,,,,GU,0.8,,,07-26-2023,500,100,1000,20,0.87,Plate1,F11,,0.8049999999999999,0.9951543336568098
+10,9,HP1,S5,standard,,,,,,,,,,GU,1,,,07-26-2023,500,100,1000,20,1.138,Plate1,E12,,1.073,0.9951543336568098
+11,9,HP1,S5,standard,,,,,,,,,,GU,1,,,07-26-2023,500,100,1000,20,1.114,Plate1,F12,,1.0490000000000002,0.9951543336568098
