@@ -210,7 +210,7 @@ def recalculate(combined_raw_data, save_img_path):
         # average the standard conc for each gelatin control
         std_conc_per_control = control.groupby(['experiment_ID','sample_ID'])['std_conc_ug_per_well'].mean().reset_index()
         
-        avg_conc_per_control = control.groupby(['experiment_ID','sample_ID'], squeeze=True).apply(lambda x: ((x['ug/well'].sum()- x['ug/well'].max()-x['ug/well'].min())/(len(x)-2))).reset_index(name='ug/well')
+        avg_conc_per_control = control.groupby(['experiment_ID','sample_ID'], squeeze=True).apply(lambda x: ((x['ug/well'].sum() - x['ug/well'].max()-x['ug/well'].min())/(len(x)-2)) if len(x) > 2 else x['ug/well'].mean()).reset_index(name='ug/well')
         avg_conc_per_control['std_conc_ug_per_well'] = std_conc_per_control['std_conc_ug_per_well']
         #print(avg_conc_per_control['ug/well'])
 
@@ -253,9 +253,9 @@ def recalculate(combined_raw_data, save_img_path):
         samples['mg/biopsy'] = samples['ug/well']/1000*(samples['homogenate volume ul']/samples['homogenate sample volume ul'])*(samples['digest volume ul']/samples['digest sample volume ul'])
         samples['mg/cm2'] = samples['mg/biopsy']/(np.pi*((pd.to_numeric(samples['biopsy_diameter_mm'])/10)/2)**2)
 
-        # average mg/biopsy and ug/area per sample. each sample has 4 replicates. the avg exclude min and max value
-        average_per_sample = samples.groupby(['experiment_ID','sample_ID', 'hide_ID','biopsy_replicate','biomaterial_ID'], squeeze=True).apply(lambda x: ((x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min())/(len(x)-2))).reset_index(name='mg/biopsy')
-        average_mg_cm2_per_sample = samples.groupby(['experiment_ID','sample_ID','hide_ID','biopsy_replicate','biomaterial_ID'], squeeze=True).apply(lambda x: ((x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min())/(len(x)-2))).reset_index(name='mg/cm2')
+        # average mg/biopsy and ug/area per sample. each digestion sample has 4 replicates. the avg exclude min and max value
+        average_per_sample = samples.groupby(['experiment_ID','sample_ID', 'hide_ID','biopsy_replicate','biomaterial_ID'], squeeze=True).apply(lambda x: ((x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min())/(len(x)-2)) if len(x) > 2 else x['mg/biopsy'].mean()).reset_index(name='mg/biopsy')
+        average_mg_cm2_per_sample = samples.groupby(['experiment_ID','sample_ID','hide_ID','biopsy_replicate','biomaterial_ID'], squeeze=True).apply(lambda x: ((x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min())/(len(x)-2)) if len(x) > 2 else x['mg/cm2'].mean()).reset_index(name='mg/cm2')
         average_per_sample['mg/cm2'] = average_mg_cm2_per_sample['mg/cm2']
 
         # -----------average results of each
@@ -263,8 +263,8 @@ def recalculate(combined_raw_data, save_img_path):
         biopsy_mean = average_per_sample.groupby(['experiment_ID','hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['mg/biopsy'].mean()).reset_index(name='mg/biopsy mean')
         biopsy_std = average_per_sample.groupby(['experiment_ID','hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['mg/biopsy'].std()).reset_index(name='mg/biopsy std')
         
-        weight_per_area_mean = average_per_sample.groupby(['experiment_ID','hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['mg/cm2'].mean()).reset_index(name='ug/cm2 mean')
-        weight_per_area_std = average_per_sample.groupby(['experiment_ID','hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['mg/cm2'].std()).reset_index(name='ug/cm2 std')
+        weight_per_area_mean = average_per_sample.groupby(['experiment_ID','hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['mg/cm2'].mean()).reset_index(name='mg/cm2 mean')
+        weight_per_area_std = average_per_sample.groupby(['experiment_ID','hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['mg/cm2'].std()).reset_index(name='mg/cm2 std')
     
        # average weight of each hide_ID categorized by biomaterial_ID
         biopsy_weight = samples.groupby(['hide_ID','biomaterial_ID'], squeeze = True).apply(lambda x: x['net weight mg'].mean()).reset_index(name='net weight mg')
