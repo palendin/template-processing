@@ -1,0 +1,13 @@
+,ID,experiment_ID,sample_ID,sample_type,sample_state,sample_lot,biopsy_id,culture_date,biopsy_replicate,biopsy_diameter_mm,digestion_volume_ul,dilution_factor,assay_volume_ul,loaded_weight1_mg,loaded_weight2_mg,tube_weight1_mg,tube_weight2_mg,operator,std_conc_ug_per_well,media_type,biomaterial_id,reaction_date,abs,sheet_name,location,data check,normalized_abs
+76,23,HP16-20231023,S5,standard,liquid,,,,,,,1,20,,,,,,1,,,12-30-1899,1.16,Plate1,E10,,1.16
+77,23,HP16-20231023,S5,standard,liquid,,,,,,,1,20,,,,,,1,,,12-30-1899,1.166,Plate1,F10,,1.166
+78,26,HP16-20231023,S2,standard,liquid,,,,,,,1,20,,,,,,0.4,,,12-30-1899,0.521,Plate1,G10,,0.521
+79,26,HP16-20231023,S2,standard,liquid,,,,,,,1,20,,,,,,0.4,,,12-30-1899,0.531,Plate1,H10,,0.531
+84,24,HP16-20231023,S4,standard,liquid,,,,,,,1,20,,,,,,0.8,,,12-30-1899,0.977,Plate1,E11,,0.977
+85,24,HP16-20231023,S4,standard,liquid,,,,,,,1,20,,,,,,0.8,,,12-30-1899,0.977,Plate1,F11,,0.977
+86,27,HP16-20231023,S1,standard,liquid,,,,,,,1,20,,,,,,0.2,,,12-30-1899,0.323,Plate1,G11,,0.323
+87,27,HP16-20231023,S1,standard,liquid,,,,,,,1,20,,,,,,0.2,,,12-30-1899,0.319,Plate1,H11,,0.319
+92,25,HP16-20231023,S3,standard,liquid,,,,,,,1,20,,,,,,0.6,,,12-30-1899,0.702,Plate1,E12,,0.702
+93,25,HP16-20231023,S3,standard,liquid,,,,,,,1,20,,,,,,0.6,,,12-30-1899,0.786,Plate1,F12,,0.786
+94,28,HP16-20231023,S0,standard,liquid,,,,,,,1,20,,,,,,0,,,12-30-1899,0.089,Plate1,G12,,0.089
+95,28,HP16-20231023,S0,standard,liquid,,,,,,,1,20,,,,,,0,,,12-30-1899,0.081,Plate1,H12,,0.081
