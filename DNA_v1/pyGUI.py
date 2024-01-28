@@ -1,3 +1,5 @@
+# switch to venv interpreter
+
 import os, sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -28,28 +30,27 @@ sys.excepthook = handle_exception
 class Run_assay(QWidget):
     def __init__(self, parent = None):
 
-        # make a text file if not exist
-        file_path = os.path.join(os.path.dirname(__file__), 'processed_files.txt')
-        if not os.path.exists(file_path):
-            with open(file_path, 'w'):
-                pass
-        else:
-            pass
+        # # make a text file if not exist
+        # file_path = os.path.join(os.path.dirname(__file__), 'processed_files.txt')
+        # if not os.path.exists(file_path):
+        #     with open(file_path, 'w'):
+        #         pass
+        # else:
+        #     pass
         
         # initialize window and layout properties
         super(Run_assay, self).__init__(parent)
-        self.resize(200,200)
-        self.setWindowTitle('Hydroxyproline Calculator')
+        self.resize(300,350)
+        self.setWindowTitle('DNA Calculator')
 
         # create a layout
         self.vbox = QVBoxLayout()
-        #self.hbox = QHBoxLayout()
-
+        self.instruction_text_layout = QHBoxLayout()
+        
         # place widgets inside the window
-        self.label = QLabel("calculates collagen in digested samples")
+        self.label = QLabel("Calculates DNA mass per area")
         self.label.setFont(QFont('Arial', 20))
-        #self.label.move(10,10)
-
+        
         # set the layout of our window as
         self.setLayout(self.vbox)
         #self.setLayout(self.hbox)
@@ -59,20 +60,35 @@ class Run_assay(QWidget):
 
     def ButtonUI(self):
         
+        # create input box text
+        self.instruction = QLabel('Enter a DNA experiment ID:')
+        self.instruction.setFont(QFont('Arial', 15))
+
+        # create user input box
+        self.input_box = QLineEdit()
+
         # create button
         self.run_button = QPushButton("run")
-        self.run_button.setFont(QFont('Times',20))
+        self.run_button.setFont(QFont('Times',15))
         self.quit_button = QPushButton("quit")
-        self.quit_button.setFont(QFont('Times',20))
+        self.quit_button.setFont(QFont('Times',15))
         self.rerun_button = QPushButton("recalculate")
-        self.rerun_button.setFont(QFont('Times',20))
+        self.rerun_button.setFont(QFont('Times',15))
 
         # create text
         self.label1 = QLabel('Use recalculate after data check')
-        self.label1.setFont(QFont('Arial', 20))
+        self.label1.setFont(QFont('Arial', 15))
 
         # pack the widgets in our vbox
         self.vbox.addWidget(self.label)
+        
+        # create horizontal layout for text instruction
+        self.instruction_text_layout.addWidget(self.instruction)  
+        # add input box to horizontal layout from text instruction
+        self.instruction_text_layout.addWidget(self.input_box)
+        self.vbox.addLayout(self.instruction_text_layout)
+        
+
         self.vbox.addWidget(self.run_button)
         self.vbox.addWidget(self.quit_button)
 
@@ -89,18 +105,19 @@ class Run_assay(QWidget):
         self.show()
     
     def calculation(self):
-        path = resource_path('HP_assay')
-        processing(path)
+        exp_input = self.input_box.text()
+        processing(exp_input)
 
         # show message box after completion
         self.show_info_messagebox()
     
     def recalculate(self):
-        path = resource_path('HP_assay')
-        reprocessing(path)
-        
-        # show message box after completion
+        exp_input = self.input_box.text()
+        reprocessing(exp_input)
+    
+    # show message box after completion
         self.show_info_messagebox()
+
 
     def show_info_messagebox(self):
         msg = QMessageBox()
@@ -117,7 +134,6 @@ class Run_assay(QWidget):
         
         # start the app
         retval = msg.exec_()
-
 
 if __name__ == '__main__':
    app = QApplication(sys.argv)
