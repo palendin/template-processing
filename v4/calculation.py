@@ -74,7 +74,7 @@ def hydroxyproline_assay_calc(df,save_img_path):
     #print(avg_conc_per_control['ug/well'])
 
     gelatin_model = LinearRegression()
-    gelatin_model.fit(avg_conc_per_control[['std_conc_ug_per_well']], avg_conc_per_control[['ug/well']])
+    gelatin_model.fit(avg_conc_per_control['std_conc_ug_per_well'].to_np(), avg_conc_per_control[['ug/well']])
     gelatin_r_squared = gelatin_model.score(avg_conc_per_control[['std_conc_ug_per_well']], avg_conc_per_control[['ug/well']])
     # slope = np.ndarray.item(np.array(gelatin_model.coef_))
     # intercept = np.ndarray.item(np.array(gelatin_model.intercept_))

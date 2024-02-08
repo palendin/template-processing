@@ -53,9 +53,9 @@ def processing(root_directory):
             digestion_layout_df_list = []
             layout_df_list = []
 
-            column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type', 'sample_state', 'sample_lot','hide_ID','culture_date', 
+            column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type', 'sample_state', 'sample_lot','biopsy_id','culture_date', 
                             'biopsy_replicate', 'biopsy_diameter_mm', 'digestion_volume_ul', 'dilution_factor',	'assay_volume_ul', 'loaded_weight1_mg', 'loaded_weight2_mg', 
-                            'tube_weight1_mg', 'tube_weight2_mg','operator', 'std_conc_ug_per_well', 'media_type', 'biomaterial_ID', 'reaction_date']
+                            'tube_weight1_mg', 'tube_weight2_mg','operator', 'std_conc_ug_per_well', 'media_type', 'biomaterial_id', 'reaction_date']
             
             # to process each plate individually with own standard curve,
             # loop through excel sheet find 'i-th' layout -> loop through sample sheet find the 'i-th' layout -> combine -> calculate

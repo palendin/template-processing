@@ -6,6 +6,7 @@ import os, sys
 import warnings
 warnings.filterwarnings("ignore")
 import traceback
+from read_all_tabs_gsheet import read_gsheet_by_name
 
 # for executable purposes, defining a dynamic base path is needed for executing at different locations
 # relative path is a folder path created in the same directory as the executable for storing HP_assay experiments
@@ -20,7 +21,7 @@ def resource_path(relative_path):
     return path
     
 def processing(folder_name):
-
+    read_gsheet_by_name(folder_name)
     root_directory = resource_path('HP_assay')
 
     folder_path = os.path.join(root_directory, folder_name)
@@ -44,7 +45,6 @@ def processing(folder_name):
 
         column_names = ['id', 'experiment_id','sample_id','sample_type','description','sample_replicate','sample_diameter_mm','digestion_volume_ul','digested_sample_volume',
                         'buffer_volume','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
-
 
         # # to process each plate individually with own standard curve,
         # # loop through sample sheet find 'i-th' layout -> loop through abs sheet find the 'i-th' layout -> combine -> calculate
@@ -186,8 +186,10 @@ def reprocessing(folder_name):
 
 
 if __name__ == "__main__":
-    user_input = input('enter experiment name for calculating')
-    if user_input is not None:
-        processing(user_input)
+    # user_input = input('enter experiment name for calculating')
+    # if user_input is not None:
+    #     processing(user_input)
+
+    processing('DNA74-20240126')
 
 
