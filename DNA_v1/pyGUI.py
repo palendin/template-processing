@@ -4,7 +4,7 @@ import os, sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from HP_assay_processing import processing, reprocessing, resource_path
+from DNA_assay_processing import processing, reprocessing, resource_path
 import traceback
 #os.chdir(sys._MEIPASS) # applies only when pyinstall on MAC
 

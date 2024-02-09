@@ -17,117 +17,54 @@ def resource_path(relative_path):
 
     return path
 
-def hydroxyproline_assay_calc(df,save_img_path, plate_number):
-
-    # normalize abs reading if there is any
-    if len(df[df['sample_type'] == 'blank_control']) > 0:
-        blank_abs = df[df['sample_type'] == 'blank_control']['abs'].mean()
-    else:
-        blank_abs = 0
-    
-    df['normalized_abs'] = df['abs'] - blank_abs
+def DNA_assay_calc(df,save_img_path, plate_number):
 
     # --------------tables of standards only (raw data)---------------
-    standard = df[df['sample_type'] == 'standard']
-    standard_volume_ml = pd.to_numeric(standard['assay_volume_ul'])/1000
-    standard_ug_per_ml = pd.to_numeric(standard['std_conc_ug_per_well'])/standard_volume_ml
-  
-    model = LinearRegression()
-    model.fit(standard[['normalized_abs']], standard_ug_per_ml)
-    r_squared = model.score(standard[['normalized_abs']], standard_ug_per_ml)
-    slope = np.ndarray.item(np.array(model.coef_))
-    intercept = np.ndarray.item(np.array(model.intercept_))
-    #print(slope, intercept, r_squared)
+    if len(df[df['sample_type'] == 'standard']) > 0:
+        standard = df[df['sample_type'] == 'standard']
 
-    # populate r_squared value in table of standards
-    standard['r_squared'] = r_squared
-    standard = standard.reset_index(level=0, drop=True)
+        model = LinearRegression()
+        model.fit(standard[['abs']], standard[['std_conc_ng_per_well']])
+        r_squared = model.score(standard[['abs']], standard[['std_conc_ng_per_well']])
+        slope = np.ndarray.item(np.array(model.coef_))
+        intercept = np.ndarray.item(np.array(model.intercept_))
+        #print(slope, intercept, r_squared)
 
-    # plot scatter vs predicted
-    #print(standard[['normalized_abs']], standard[['std_conc_ug_per_well']])
-    plt.scatter(standard[['normalized_abs']], standard_ug_per_ml , color='g')
-    plt.plot(standard[['normalized_abs']], model.predict(standard[['normalized_abs']]),color='k')
-    plt.text(0.4, 0.2, f'r_squared= {round(r_squared,5)}', style='italic')
-    plt.xlabel('normalized absorbance')
-    plt.ylabel('std_conc_ug_per_ml')
-    plt.savefig(os.path.join(save_img_path, f'Plate{plate_number} standard plot'))
-    plt.close()
-    #plt.show()
+        # populate r_squared value in table of standards
+        standard['r_squared'] = r_squared
+        standard = standard.reset_index(level=0, drop=True)
 
-    # --------------table of gelatin control only----------------
-    if len(df[df['sample_type'] == 'control']) > 0:
-        control = df[df['sample_type'] == 'control']
-
-        control['ug/ml'] = control['normalized_abs']*slope+intercept # y value of the standard curve is in ug/ml
-        control['ug/well'] = control['ug/ml'] * pd.to_numeric(control['assay_volume_ul'])/1000
-
-        # change to ug/ml by multiplying by the dilution factor and dividing the assay volume
-        # how to implement the change without creating additional columns? maybe just need to add 1 extra column for std conc ug per ml for groupby.
-        #control_std_ug_per_ml = pd.to_numeric(control['std_conc_ug_per_well'])/control['assay_volume_ul']*control['dilution_factor']
-
-
-        control_std = pd.to_numeric(control['std_conc_ug_per_well'])
-        control['std_conc_ug_per_well'] = control_std
-
-        # average the standard conc for each gelatin control
-        std_conc_per_control = control.groupby(['experiment_ID','sample_ID'])['std_conc_ug_per_well'].mean().reset_index()
-        
-        avg_conc_per_control = control.groupby(['experiment_ID','sample_ID'], squeeze=True).apply(lambda x: ((x['ug/ml'].sum()- x['ug/ml'].max()-x['ug/ml'].min())/(len(x)-2))).reset_index(name='ug/ml')
-        avg_conc_per_control['std_conc_ug_per_ml'] = std_conc_per_control['std_conc_ug_per_well']/(pd.to_numeric(control['assay_volume_ul'])/1000)
-
-        gelatin_model = LinearRegression()
-        gelatin_model.fit(avg_conc_per_control[['std_conc_ug_per_ml']], avg_conc_per_control[['ug/ml']])
-        gelatin_r_squared = gelatin_model.score(avg_conc_per_control[['std_conc_ug_per_ml']], avg_conc_per_control[['ug/ml']])
-        # slope = np.ndarray.item(np.array(gelatin_model.coef_))
-        # intercept = np.ndarray.item(np.array(gelatin_model.intercept_))
-
-        control['r_squared'] = gelatin_r_squared
-        control = control.reset_index(level=0, drop=True)
-
-        # plotting fitted line
-        plt.scatter(avg_conc_per_control[['std_conc_ug_per_ml']], avg_conc_per_control[['ug/ml']], color='g')
-        plt.plot(avg_conc_per_control[['std_conc_ug_per_ml']],gelatin_model.predict(avg_conc_per_control[['std_conc_ug_per_ml']]),color='k')
-        plt.text(0.4, 0.4, f'r_squared= {round(gelatin_r_squared,5)}', style='italic')
-        plt.xlabel('thereotical hydroxyproline ug/ml')
-        plt.ylabel('hydroxyproline in gelatin ug/ml')
-        plt.savefig(os.path.join(save_img_path, f'Plate{plate_number} control_plot.png'))
+        # plot scatter vs predicted
+        standard_ug_well = pd.to_numeric(standard['std_conc_ng_per_well'])
+        plt.scatter(standard[['abs']], standard_ug_well, color='g')
+        plt.plot(standard[['abs']], model.predict(standard[['abs']]),color='k')
+        plt.text(0.4, 0.2, f'r_squared= {round(r_squared,5)}', style='italic')
+        plt.xlabel('absorbance')
+        plt.ylabel('std_conc_ng_per_well')
+        plt.savefig(os.path.join(save_img_path, f'Plate{plate_number} standard plot'))
         plt.close()
-    else:
-        control = None
 
     # -------------table of samples only (raw data)-------------
     if len(df[df['sample_type'] == 'sample']) > 0:
         samples = df[(df['sample_type'] == 'sample')]
 
-        # net weight calculation
-        loaded_weight1 = pd.to_numeric(samples['loaded_weight1_mg'])
-        loaded_weight2 = pd.to_numeric(samples['loaded_weight2_mg'])
-        avg_loaded_weight = (loaded_weight1 + loaded_weight2)/2
+        # calculate ng/well for each sample using standard plot
+        samples['ng/well'] = samples['abs']*slope+intercept
 
-        tube_weight1 = pd.to_numeric(samples['tube_weight1_mg'])
-        tube_weight2 = pd.to_numeric(samples['tube_weight2_mg'])
-        avg_empty_weight = (tube_weight1 + tube_weight2)/2
-        # avg_loaded_weight = (samples['loaded_weight1_mg']+samples['loaded_weight2_mg'])/2
-        # avg_empty_weight = (samples['tube_weight1_mg']+samples['tube_weight2_mg'])/2
-        samples['net weight mg'] = avg_loaded_weight - avg_empty_weight
-
-        # calculate ug/well for each sample using standard plot
-        samples['ug/well'] = samples['normalized_abs']*slope+intercept
-
-        # calculate mg/ml for all samples
-        samples['mg/ml'] = samples['ug/well']/pd.to_numeric(samples['assay_volume_ul'])*pd.to_numeric(samples['dilution_factor']) # ug/ul = mg/ml
+        # calculate ug/ml for all samples
+        samples['ug/ml'] = (samples['ng/well']/pd.to_numeric(samples['assay_volume_ul'])*pd.to_numeric(samples['dilution_factor']))/1000 # convert from ng/ml to ug/ml
         
-        # if sample is aggregrate, calculate mg/biopsy
-        samples['mg/biopsy'] = samples[(samples['sample_state'] == 'aggregrate') | (samples['sample_state'] == 'hide')]['mg/ml']*(pd.to_numeric(samples['digestion_volume_ul'])/1000)
+        # calclate ug/biopsy for all samples
+        samples['ug/biopsy'] = samples['ug/ml']*(pd.to_numeric(samples['digestion_volume_ul'])/1000)
         
-        # if sample is hide, calculate weight/area
-        samples['mg/cm2'] = samples[(samples['sample_state'] == 'hide')]['mg/biopsy']/(np.pi*((pd.to_numeric(samples['biopsy_diameter_mm'])/10)/2)**2)
+        # calculate ug/cm2 for all samples
+        samples['ug/cm2'] = samples['ug/biopsy']/(np.pi*((pd.to_numeric(samples['sample_diameter_mm'])/10)/2)**2)
 
     else:
         print('no samples')
         samples = None  
 
-    return standard, samples, control
+    return standard, samples
 
 
 # once all samples are calculated, then calculate averages
@@ -194,6 +131,6 @@ def recalculate(combined_raw_data, save_img_path, plate):
     retained_data = retained_data.iloc[:,1:28]
 
     plate_number = plate[-1] + ' reprocessed'
-    standard, samples, control = hydroxyproline_assay_calc(retained_data, save_img_path, plate_number)
+    standard, samples, control = DNA_assay_calc(retained_data, save_img_path, plate_number)
 
     return omitted_data, standard, samples, control 
