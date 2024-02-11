@@ -160,20 +160,20 @@ def calculate_sample_averages(combined_raw_data):
             average_df.append(average_per_sample)
 
             # --average results of each hide --
-            biopsy_mean = average_per_sample.groupby(['experiment_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].mean()).reset_index(name='mg/biopsy mean')
-            biopsy_std = average_per_sample.groupby(['experiment_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].std()).reset_index(name='mg/biopsy std')
+            biopsy_mean = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].mean()).reset_index(name='mg/biopsy mean')
+            biopsy_std = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].std()).reset_index(name='mg/biopsy std')
         
-            conc_mean = average_per_sample.groupby(['experiment_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].mean()).reset_index(name='mg/ml mean')
-            conc_mean_std = average_per_sample.groupby(['experiment_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].std()).reset_index(name='mg/ml std')
+            conc_mean = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].mean()).reset_index(name='mg/ml mean')
+            conc_mean_std = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].std()).reset_index(name='mg/ml std')
             
-            weight_per_area_mean = average_per_sample.groupby(['experiment_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].mean()).reset_index(name='mg/cm2 mean')
-            weight_per_area_std = average_per_sample.groupby(['experiment_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].std()).reset_index(name='mg/cm2 std')
+            weight_per_area_mean = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].mean()).reset_index(name='mg/cm2 mean')
+            weight_per_area_std = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].std()).reset_index(name='mg/cm2 std')
         
             # average weight of each biopsy_id categorized by biomaterial_id
-            biopsy_weight = liquid_samples.groupby(['biopsy_id'], squeeze = True).apply(lambda x: x['net weight mg'].mean()).reset_index(name='net weight mg')
+            biopsy_weight = liquid_samples.groupby(['sample_ID','biopsy_id'], squeeze = True).apply(lambda x: x['net weight mg'].mean()).reset_index(name='net weight mg')
 
             # get average diameter for each hide (just for grouping)
-            biopsy_area = liquid_samples.groupby(['biopsy_id'], squeeze = True).apply(lambda x: (np.pi*(pd.to_numeric(x['biopsy_diameter_mm'])/10/2)**2).mean()).reset_index(name='biopsy_area')
+            biopsy_area = liquid_samples.groupby(['sample_ID','biopsy_id'], squeeze = True).apply(lambda x: (np.pi*(pd.to_numeric(x['biopsy_diameter_mm'])/10/2)**2).mean()).reset_index(name='biopsy_area')
 
             # add to biopsy_mean dataframe
             biopsy_mean['mg/biopsy std'] = biopsy_std['mg/biopsy std']
@@ -217,20 +217,20 @@ def calculate_sample_averages(combined_raw_data):
             average_df.append(average_per_sample)
             
             # --average results of each hide --
-            biopsy_mean = average_per_sample.groupby(['experiment_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].mean()).reset_index(name='mg/biopsy mean')
-            biopsy_std = average_per_sample.groupby(['experiment_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].std()).reset_index(name='mg/biopsy std')
+            biopsy_mean = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].mean()).reset_index(name='mg/biopsy mean')
+            biopsy_std = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/biopsy'].std()).reset_index(name='mg/biopsy std')
         
-            conc_mean = average_per_sample.groupby(['experiment_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].mean()).reset_index(name='mg/ml mean')
+            conc_mean = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].mean()).reset_index(name='mg/ml mean')
             conc_mean_std = average_per_sample.groupby(['experiment_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/ml'].std()).reset_index(name='mg/ml std')
             
-            weight_per_area_mean = average_per_sample.groupby(['experiment_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].mean()).reset_index(name='mg/cm2 mean')
-            weight_per_area_std = average_per_sample.groupby(['experiment_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].std()).reset_index(name='mg/cm2 std')
+            weight_per_area_mean = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].mean()).reset_index(name='mg/cm2 mean')
+            weight_per_area_std = average_per_sample.groupby(['experiment_ID','sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['avg mg/cm2'].std()).reset_index(name='mg/cm2 std')
         
             # average weight of each biopsy_id categorized by biomaterial_id
-            biopsy_weight = solid_samples.groupby(['biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['net weight mg'].mean()).reset_index(name='net weight mg')
+            biopsy_weight = solid_samples.groupby(['sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: x['net weight mg'].mean()).reset_index(name='net weight mg')
 
             # get average diameter for each hide (just for grouping)
-            biopsy_area = solid_samples.groupby(['biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: (np.pi*(pd.to_numeric(x['biopsy_diameter_mm'])/10/2)**2).mean()).reset_index(name='biopsy_area')
+            biopsy_area = solid_samples.groupby(['sample_ID','biopsy_id','biomaterial_id'], squeeze = True).apply(lambda x: (np.pi*(pd.to_numeric(x['biopsy_diameter_mm'])/10/2)**2).mean()).reset_index(name='biopsy_area')
 
             # add to biopsy_mean dataframe
             biopsy_mean['mg/biopsy std'] = biopsy_std['mg/biopsy std']
