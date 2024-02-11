@@ -43,8 +43,8 @@ def processing(folder_name):
         
         # ------------------- format sample layout ----------------------------      update the format sample layout code from wayne's PC
         layout_df_list = []
-
-        column_names = ['ID', 'experiment_ID', 'sample_ID','sample_type', 'sample_state', 'sample_lot','biopsy_id','culture_date', 
+        
+        column_names = ['unique_id', 'experiment_ID', 'sample_ID','sample_type', 'sample_state', 'sample_lot','biopsy_id','culture_date', 
                         'biopsy_replicate', 'biopsy_diameter_mm', 'digestion_volume_ul', 'dilution_factor',	'assay_volume_ul', 'loaded_weight1_mg', 'loaded_weight2_mg', 
                         'tube_weight1_mg', 'tube_weight2_mg','operator', 'std_conc_ug_per_well', 'media_type', 'biomaterial_id', 'reaction_date']
         
@@ -53,25 +53,25 @@ def processing(folder_name):
         # combine the calculated results
         
         # process digestion samples layout
-        # for i, sheet_name in enumerate(sample_layout):
+        for i, sheet_name in enumerate(sample_layout):
     
         # process sample_layouts
-        well_layout_count = 1
-        for sheet in sample_layout:
-            if sheet == 'Well layout' + str(well_layout_count):
-                well_layout_count += 1
-                # drop the rows/columns and expand into appropriate dataframe
-                df = sample_layout[sheet].iloc[0:,1:].reset_index(level=0,drop=True)
-                try:
-                    df = df.melt()['value'].str.split(',',expand=True)
-                except:
-                    continue
-                # replace header
-                for i, col_name in enumerate(df.columns):
-                    df.rename(columns = {col_name: column_names[i]}, inplace = True)
+            well_layout_count = 1
+            for sheet in sample_layout:
+                if sheet == 'Well layout' + str(well_layout_count):
+                    well_layout_count += 1
+                    # drop the rows/columns and expand into appropriate dataframe
+                    df = sample_layout[sheet].iloc[0:,1:].reset_index(level=0,drop=True)
+                    try:
+                        df = df.melt()['value'].str.split(',',expand=True)
+                    except:
+                        continue
+                    # replace header
+                    for i, col_name in enumerate(df.columns):
+                        df.rename(columns = {col_name: column_names[i]}, inplace = True)
 
-                # put dataframes into a list
-                layout_df_list.append(df)
+                    # put dataframes into a list
+                    layout_df_list.append(df)
 
         #  # ------------------- format absorbance measurement layout ----------------------------
         # empty list for combining multiple sheets together    
@@ -137,13 +137,36 @@ def processing(folder_name):
         culture_date = pd.to_numeric(combined_raw_data_df['culture_date'])
         combined_raw_data_df['culture_date'] = ((start_date + pd.to_timedelta(culture_date, unit='D')) - pd.to_timedelta(2, unit='D')).dt.strftime('%m-%d-%Y')
         
+  
+
         # calculate average results for hides
-        biopsy_results = calculate_sample_averages(combined_raw_data_df)
-
-        combined_raw_data_df.iloc[:,0:33].to_csv(folder_path + '/' + 'combined_raw_data.csv')
+        average_results, biopsy_results = calculate_sample_averages(combined_raw_data_df)
+        #combined_raw_data_df.iloc[:,0:33].to_csv(folder_path + '/' + 'combined_raw_data.csv')
         biopsy_results.to_csv(folder_path + '/' + 'biopsy_result.csv')
+        
+        # drop duplicate columns before merging
+        average_results = average_results.drop(['experiment_ID', 'sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'],axis=1)
 
-        #f.write(folder_path + ',')  
+        combined_avg_results = pd.merge(average_results,combined_raw_data_df, on = 'unique_id', how='outer')
+
+
+        # reorganize columns
+        combined_avg_results_column = ['unique_id', 'experiment_ID', 'sample_ID',
+                                        'sample_type', 'sample_state', 'sample_lot', 'biopsy_id',
+                                        'culture_date', 'biopsy_replicate', 'biopsy_diameter_mm',
+                                        'digestion_volume_ul', 'dilution_factor', 'assay_volume_ul',
+                                        'loaded_weight1_mg', 'loaded_weight2_mg', 'tube_weight1_mg',
+                                        'tube_weight2_mg', 'operator', 'std_conc_ug_per_well', 'media_type',
+                                        'biomaterial_id', 'reaction_date', 'abs', 'sheet_name', 'location',
+                                        'data check', 'normalized_abs', 'r_squared', 'net weight mg', 'ug/well',
+                                        'mg/ml', 'mg/biopsy', 'mg/cm2','avg mg/biopsy', 'mg/biopsy std', 'avg mg/cm2',
+                                        'mg/cm2 std', 'avg mg/ml', 'mg/ml std']
+        
+
+        # rearrange columns
+        combined_avg_results = combined_avg_results[combined_avg_results_column]
+        combined_avg_results.to_csv(folder_path + '/' + 'combined_raw_data.csv')
+        
 
     else:
         raise Exception(f'folder name {folder_name} does not exist')
@@ -151,7 +174,7 @@ def processing(folder_name):
 def reprocessing(folder_name):
 
     root_directory = resource_path('HP_assay')
-
+    
     folder_path = os.path.join(root_directory, folder_name)
         # check if subfolder
     if os.path.isdir(folder_path):
@@ -163,17 +186,19 @@ def reprocessing(folder_name):
         #     print(f" - {file_name}")
             raw_data_combined = pd.read_csv(folder_path + '/' + 'combined_raw_data.csv')
 
-            # remove the index column name
-            columns = raw_data_combined.iloc[:,1:].columns
+            # remove the index column name and the averaged value columns
+            columns = raw_data_combined.iloc[:,1:34].columns
+
         except:
-           print(traceback.format_exc())
-    
+           print(traceback.format_exc())        
+
         combined_raw_data_list_rp = []
         plate_list = raw_data_combined['sheet_name'].unique()
 
         # reprocess each plate in the file
         for i, plate in enumerate(plate_list):
             filtered_data = raw_data_combined[raw_data_combined['sheet_name'] == plate]
+
             omitted, standard, samples, control = recalculate(filtered_data,folder_path, plate)
 
             # stack outputs
@@ -183,21 +208,40 @@ def reprocessing(folder_name):
             # append outputs to list
             combined_raw_data_list_rp.append(stacked_data)
         
+        
         if combined_raw_data_list_rp is not None:
             # combine the appended dataframe with multiple header columns into 1 single header column
             combined_raw_data_df = pd.concat(combined_raw_data_list_rp, ignore_index=True, join='outer')[columns]
-            
-            # save the combined data first before omitting for calculation
-            combined_raw_data_df.iloc[:,0:33].to_csv(folder_path + '/' + 'combined_raw_data.csv')
+         
             
             # combined_raw_data retains omitted samples even though it wasnt part of calc, so need to omit the samples again and calculate biopsy results
             combined_raw_data_df_filtered = combined_raw_data_df[combined_raw_data_df['data check'].isnull()]
-            biopsy_results = calculate_sample_averages(combined_raw_data_df_filtered)
-
+            
+            average_results, biopsy_results = calculate_sample_averages(combined_raw_data_df_filtered)
+            
             biopsy_results.to_csv(folder_path + '/' + 'biopsy_result.csv')
+            
+            # drop duplicate columns before merging
+            average_results = average_results.drop(['experiment_ID', 'sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'],axis=1)
 
-        # if biospsy_result_rp is not None:
-        #     biospsy_result_rp.to_csv(folder_path + '/' + 'biopsy_result_reprocessed.csv')
+            combined_avg_results = pd.merge(average_results,combined_raw_data_df, on = 'unique_id', how='outer')
+
+            # reorganize columns
+            combined_avg_results_column = ['unique_id', 'experiment_ID', 'sample_ID',
+                                            'sample_type', 'sample_state', 'sample_lot', 'biopsy_id',
+                                            'culture_date', 'biopsy_replicate', 'biopsy_diameter_mm',
+                                            'digestion_volume_ul', 'dilution_factor', 'assay_volume_ul',
+                                            'loaded_weight1_mg', 'loaded_weight2_mg', 'tube_weight1_mg',
+                                            'tube_weight2_mg', 'operator', 'std_conc_ug_per_well', 'media_type',
+                                            'biomaterial_id', 'reaction_date', 'abs', 'sheet_name', 'location',
+                                            'data check', 'normalized_abs', 'r_squared', 'net weight mg', 'ug/well',
+                                            'mg/ml', 'mg/biopsy', 'mg/cm2','avg mg/biopsy', 'mg/biopsy std', 'avg mg/cm2',
+                                            'mg/cm2 std', 'avg mg/ml', 'mg/ml std']
+            
+            # rearrange columns
+            combined_avg_results = combined_avg_results[combined_avg_results_column]
+            print(combined_avg_results.columns)
+            combined_avg_results.to_csv(folder_path + '/' + 'combined_raw_data.csv')
     
 
 if __name__ == "__main__":
@@ -205,6 +249,14 @@ if __name__ == "__main__":
     # if user_input is not None:
     #     processing(user_input)
 
-    processing('HP71')
+    reprocessing('HP71')
+
+
+    
+
+# upload recent runs to postgresql first
+
+# add data table in postgresql
+# edit all documentations
 
 

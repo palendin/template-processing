@@ -38,8 +38,8 @@ def processing(folder_name):
         
         print('input from user is',folder_name)
 
-        column_names = ['id', 'experiment_id','sample_id','sample_type','description','sample_replicate','sample_diameter_mm','digestion_volume_ul','digested_sample_volume',
-                        'buffer_volume','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
+        column_names = ['id', 'experiment_id','sample_id','sample_type','description','sample_replicate','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
+                        'buffer_volume_ul','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
 
 
         # process all the data using 1 standard curve.
@@ -61,7 +61,8 @@ def processing(folder_name):
                     df = df.melt()['value'].str.split(',',expand=True)
                 except:
                     continue
-                # replace header
+
+                # rename header
                 for i, col_name in enumerate(df.columns):
                     df.rename(columns = {col_name: column_names[i]}, inplace = True)
 
@@ -108,6 +109,21 @@ def processing(folder_name):
         combined_data = pd.concat([combined_layout, combined_abs], axis=1)
 
         # ----------------------- calculate -----------------------------------
+        
+        standard, samples = DNA_assay_calc(combined_data, folder_path)
+        averaged_results = calculate_sample_averages(samples)
+
+        display_columns = ['experiment_id','sample_id','sample_type','description','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
+                        'buffer_volume_ul','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
+        
+        sample_layout = sample_layout['Samples'].iloc[:,0:16][display_columns]
+        
+        merged_averaged_results = pd.merge(averaged_results, samples, on='sample_id')
+        all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer').reset_index(drop=True)
+        #merged_averaged_results = pd.merge(averaged_results, sample_layout, on='sample_id', how='inner')
+        #all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer')
+        
+        all_results.to_csv('test.csv')
         
 
 
