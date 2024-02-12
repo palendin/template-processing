@@ -38,7 +38,7 @@ def processing(folder_name):
         
         print('input from user is',folder_name)
 
-        column_names = ['id', 'experiment_id','sample_id','sample_type','description','sample_replicate','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
+        column_names = ['dna_sid', 'experiment_id','sample_id','sample_type','description','sample_replicate','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
                         'buffer_volume_ul','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
 
 
@@ -113,22 +113,44 @@ def processing(folder_name):
         standard, samples = DNA_assay_calc(combined_data, folder_path)
         averaged_results = calculate_sample_averages(samples)
 
-        display_columns = ['experiment_id','sample_id','sample_type','description','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
+        # drop columns before merging
+        averaged_results = averaged_results.drop(['sample_id', 'sample_replicate'], axis=1)
+
+        # ----------------------- output individual + average results together -----------------------------------
+
+        display_columns = ['dna_sid','experiment_id','sample_id','sample_type','description','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
                         'buffer_volume_ul','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
         
         sample_layout = sample_layout['Samples'].iloc[:,0:16][display_columns]
         
-        merged_averaged_results = pd.merge(averaged_results, samples, on='sample_id')
+        merged_averaged_results = pd.merge(averaged_results, samples, on='dna_sid', how='outer')
         all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer').reset_index(drop=True)
-        #merged_averaged_results = pd.merge(averaged_results, sample_layout, on='sample_id', how='inner')
-        #all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer')
         
-        all_results.to_csv('test.csv')
+        all_results_columns = ['dna_sid', 'experiment_id',
+                                'sample_id', 'sample_type', 'description', 'sample_replicate',
+                                'sample_diameter_mm', 'digestion_volume_ul',
+                                'digested_sample_volume_ul', 'buffer_volume_ul', 'dilution_factor',
+                                'assay_volume_ul', 'std_conc_ng_per_well', 'biopsy_region',
+                                'culture_duration_days', 'master_well_plate_location', 'abs',
+                                'sheet_name', 'location', 'ng_per_well', 'ug_per_ml', 'ug_per_biopsy',
+                                'ug_per_cm2', 'r_squared','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
         
-
-
-    
-
+        all_results = all_results[all_results_columns]
+        all_results.to_csv(folder_path + '/' + 'combned_raw_data.csv')
+   
+        
+        # ----------------------- output only unique id average results -----------------------------------
+        unique_sample_avg_results = pd.merge(averaged_results, sample_layout, on='dna_sid', how='inner')
+        
+        avg_results_column = ['dna_sid', 'experiment_id',
+                            'sample_id', 'sample_type', 'description', 'sample_diameter_mm',
+                            'digestion_volume_ul', 'digested_sample_volume_ul', 'buffer_volume_ul',
+                            'dilution_factor', 'assay_volume_ul', 'std_conc_ng_per_well',
+                            'biopsy_region', 'culture_duration_days', 'master_well_plate_location','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
+        
+        unique_sample_avg_results = unique_sample_avg_results[avg_results_column]
+        unique_sample_avg_results.to_csv(folder_path + '/' + 'averaged_data.csv')
+        
     else:
         raise Exception(f'folder name {folder_name} does not exist')
                     

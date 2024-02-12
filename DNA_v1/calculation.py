@@ -73,8 +73,8 @@ def calculate_sample_averages(combined_raw_data):
         samples = combined_raw_data[combined_raw_data['sample_type'] == 'sample']
 
         # -- average result of each sample (trimming) --
-        average_per_sample = samples.groupby(['sample_id','sample_replicate'], squeeze=True).apply(lambda x: x['ug_per_cm2'].mean()).reset_index(name='avg_ug_per_cm2')
-        average_per_sample_std = samples.groupby(['sample_id','sample_replicate'], squeeze = True).apply(lambda x: x['ug_per_cm2'].std()).reset_index(name='avg_ug_per_cm2_std')
+        average_per_sample = samples.groupby(['dna_sid','sample_id','sample_replicate'], squeeze=True).apply(lambda x: x['ug_per_cm2'].mean()).reset_index(name='avg_ug_per_cm2')
+        average_per_sample_std = samples.groupby(['dna_sid','sample_id','sample_replicate'], squeeze = True).apply(lambda x: x['ug_per_cm2'].std()).reset_index(name='avg_ug_per_cm2_std')
         
         average_per_sample['avg_ug_per_cm2_std'] = average_per_sample_std['avg_ug_per_cm2_std']
     else:
@@ -95,7 +95,7 @@ def recalculate(combined_raw_data, save_img_path, plate):
     retained_data = combined_raw_data[(combined_raw_data['sheet_name'] == plate) & (combined_raw_data['data check'].isnull())]
 
     # output only raw data columns 1 - 27 before recalculating
-    retained_data = retained_data.iloc[:,1:28]
+    retained_data = retained_data.iloc[:,0:28]
 
     plate_number = plate[-1] + ' reprocessed'
     standard, samples, control = DNA_assay_calc(retained_data, save_img_path, plate_number)

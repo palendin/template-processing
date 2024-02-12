@@ -295,6 +295,8 @@ if __name__ == "__main__":
     reprocessing('HP16')
 
 
+# hp_sid and sample id are more important
+# try to generate hp_sid in the old biopsy results data and then reflect that in the raw data
 # when use new version, uncomment the column names in the hp_data_pg.py
-
+# displaying avg values in raw data not crucial, but nice to have.
 
