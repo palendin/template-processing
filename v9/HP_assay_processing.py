@@ -44,7 +44,7 @@ def processing(folder_name):
         # ------------------- format sample layout ----------------------------      update the format sample layout code from wayne's PC
         layout_df_list = []
         
-        column_names = ['unique_id', 'experiment_ID', 'sample_ID','sample_type', 'sample_state', 'sample_lot','biopsy_id','culture_date', 
+        column_names = ['HP_sid', 'experiment_ID', 'sample_ID','sample_type', 'sample_state', 'sample_lot','biopsy_id','culture_date', 
                         'biopsy_replicate', 'biopsy_diameter_mm', 'digestion_volume_ul', 'dilution_factor',	'assay_volume_ul', 'loaded_weight1_mg', 'loaded_weight2_mg', 
                         'tube_weight1_mg', 'tube_weight2_mg','operator', 'std_conc_ug_per_well', 'media_type', 'biomaterial_id', 'reaction_date']
         
@@ -144,14 +144,15 @@ def processing(folder_name):
         #combined_raw_data_df.iloc[:,0:33].to_csv(folder_path + '/' + 'combined_raw_data.csv')
         biopsy_results.to_csv(folder_path + '/' + 'biopsy_result.csv')
         
+        # average_results.to_csv('test.csv')
         # drop duplicate columns before merging
         average_results = average_results.drop(['experiment_ID', 'sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'],axis=1)
 
         # merge with raw data
-        combined_avg_results = pd.merge(average_results,combined_raw_data_df, on = 'unique_id', how='outer')
+        combined_avg_results = pd.merge(average_results,combined_raw_data_df, on = 'HP_sid', how='outer')
 
         # reorganize columns
-        combined_avg_results_column = ['unique_id', 'experiment_ID', 'sample_ID',
+        combined_avg_results_column = ['HP_sid', 'experiment_ID', 'sample_ID',
                                         'sample_type', 'sample_state', 'sample_lot', 'biopsy_id',
                                         'culture_date', 'biopsy_replicate', 'biopsy_diameter_mm',
                                         'digestion_volume_ul', 'dilution_factor', 'assay_volume_ul',
@@ -172,10 +173,10 @@ def processing(folder_name):
         # for i, col_name in enumerate(sample_layout.columns):
         #         sample_layout.rename(columns = {col_name: column_names[i]}, inplace = True)
         
-        # unique_avg_results = pd.merge(average_results,sample_layout, on = 'unique_id', how='inner')
+        # unique_avg_results = pd.merge(average_results,sample_layout, on = 'HP_sid', how='inner')
     
         # # reorganize columns
-        # unique_avg_results_column = ['unique_id','experiment_ID', 'sample_ID',
+        # unique_avg_results_column = ['HP_sid','experiment_ID', 'sample_ID',
         #                                 'sample_type', 'sample_state', 'sample_lot', 'biopsy_id',
         #                                 'culture_date', 'biopsy_replicate', 'biopsy_diameter_mm',
         #                                 'digestion_volume_ul', 'dilution_factor', 'assay_volume_ul',
@@ -244,10 +245,10 @@ def reprocessing(folder_name):
             # drop duplicate columns before merging
             average_results = average_results.drop(['experiment_ID', 'sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'],axis=1)
 
-            combined_avg_results = pd.merge(average_results,combined_raw_data_df, on = 'unique_id', how='outer')
+            combined_avg_results = pd.merge(average_results,combined_raw_data_df, on = 'HP_sid', how='outer')
 
             # reorganize columns
-            combined_avg_results_column = ['unique_id', 'experiment_ID', 'sample_ID',
+            combined_avg_results_column = ['HP_sid', 'experiment_ID', 'sample_ID',
                                             'sample_type', 'sample_state', 'sample_lot', 'biopsy_id',
                                             'culture_date', 'biopsy_replicate', 'biopsy_diameter_mm',
                                             'digestion_volume_ul', 'dilution_factor', 'assay_volume_ul',
@@ -270,10 +271,10 @@ def reprocessing(folder_name):
             #         if i < 23:
             #             sample_layout.rename(columns = {col_name: combined_avg_results_column[i]}, inplace = True)
             
-            # unique_avg_results = pd.merge(average_results,sample_layout, on = 'unique_id', how='inner')
+            # unique_avg_results = pd.merge(average_results,sample_layout, on = 'HP_sid', how='inner')
 
             # # reorganize columns
-            # unique_avg_results_column = ['unique_id','experiment_ID', 'sample_ID',
+            # unique_avg_results_column = ['HP_sid','experiment_ID', 'sample_ID',
             #                                 'sample_type', 'sample_state', 'sample_lot', 'biopsy_id',
             #                                 'culture_date', 'biopsy_replicate', 'biopsy_diameter_mm',
             #                                 'digestion_volume_ul', 'dilution_factor', 'assay_volume_ul',
@@ -291,12 +292,9 @@ if __name__ == "__main__":
     # if user_input is not None:
     #     processing(user_input)
 
-    processing('HP16')
+    processing('HP83-20240207')
 
 
-    
-
-# add sample ID column to biopsy id
-# edit json and script to include sample ID for biopsy result
+# when use new version, uncomment the column names in the hp_data_pg.py
 
 
