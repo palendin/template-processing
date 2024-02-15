@@ -292,7 +292,7 @@ if __name__ == "__main__":
     # if user_input is not None:
     #     processing(user_input)
 
-    reprocessing('HP16')
+    processing('HP82')
 
 
 # hp_sid and sample id are more important
