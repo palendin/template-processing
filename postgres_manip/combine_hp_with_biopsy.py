@@ -3,14 +3,14 @@ import pandas as pd
 
 # combine hp with biopsy to get sample id column and remove duplicates to get overall combined file of biopsy
 
-path = '/Users/wayne/Downloads/biopsy_result.csv'
+path = 'biopsy_result.csv'
 df1 = pd.read_csv(path)
 df2 = df1.drop_duplicates(subset=['experiment_id','biopsy_id','mg_per_biopsy_mean','mg_per_ml_mean'])
 
 #df2.to_csv('unique_biopsy_result.csv')
 
 # merge with raw result to get sample id
-hp_raw_path = '/Users/wayne/Downloads/hydroxyproline_raw.csv'
+hp_raw_path = 'hydroxyproline_raw.csv'
 hp_raw = pd.read_csv(hp_raw_path).iloc[:,0:33]
 
 # hp_raw = hp_raw.drop(['mg_per_biopsy_mean','mg_per_ml_mean','mg_per_biopsy_std','mg_per_ml_std'],axis=0)
@@ -40,10 +40,13 @@ final_raw = pd.merge(combined_renamed1,hp_raw, on = ['experiment_id','sample_id'
 # print(len(final_raw['experiment_id'].unique()))
 
 # merge back to see if the output will be the same length as combined.csv
-test = pd.merge(final_raw,combined_renamed,on =['biopsy_id','experiment_id','sample_id'], how='inner')
+final_combined = pd.read_csv('final_combined.csv')
+test = pd.merge(final_raw,final_combined,on =['biopsy_id','experiment_id','sample_id'], how='inner')
 test=test.drop_duplicates(subset=['experiment_id','sample_id','biopsy_id','mg_per_ml_mean'])
 print(len(test))
 
+final_raw_combined = pd.merge(final_combined,hp_raw, on = ['experiment_id','sample_id','biopsy_id'],how = 'outer')
+final_raw_combined.to_csv('final_hp_raw_combined.csv')
 
 # m = df1.merge(df2, on='id', how='outer', suffixes=['', '_'], indicator=True)
 
