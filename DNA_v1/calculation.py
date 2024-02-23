@@ -28,7 +28,7 @@ def DNA_assay_calc(df,save_img_path):
         r_squared = model.score(standard[['abs']], standard[['std_conc_ng_per_well']])
         slope = np.ndarray.item(np.array(model.coef_))
         intercept = np.ndarray.item(np.array(model.intercept_))
-        #print(slope, intercept, r_squared)
+        print(slope, intercept, r_squared)
 
         # populate r_squared value in table of standards
         standard['r_squared'] = r_squared
@@ -52,7 +52,7 @@ def DNA_assay_calc(df,save_img_path):
         samples['ng_per_well'] = samples['abs']*slope+intercept
 
         # calculate ug/ml for all samples
-        samples['ug_per_ml'] = (samples['ng_per_well']/pd.to_numeric(samples['assay_volume_ul'])*pd.to_numeric(samples['dilution_factor']))/1000 # convert from ng/ml to ug/ml
+        samples['ug_per_ml'] = (samples['ng_per_well']/(pd.to_numeric(samples['assay_volume_ul'])/1000)*pd.to_numeric(samples['dilution_factor']))/1000 # convert from ng/ml to ug/ml
         
         # calclate ug/biopsy for all samples
         samples['ug_per_biopsy'] = samples['ug_per_ml']*(pd.to_numeric(samples['digestion_volume_ul'])/1000)
