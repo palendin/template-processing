@@ -108,6 +108,9 @@ def processing(folder_name):
 
         combined_data = pd.concat([combined_layout, combined_abs], axis=1)
 
+         # add data check column for omission
+        combined_data['data_check'] = ''
+
         # ----------------------- calculate -----------------------------------
         
         standard, samples = DNA_assay_calc(combined_data, folder_path)
@@ -133,10 +136,10 @@ def processing(folder_name):
                                 'assay_volume_ul', 'std_conc_ng_per_well', 'biopsy_region',
                                 'culture_duration_days', 'master_well_plate_location', 'abs',
                                 'sheet_name', 'location', 'ng_per_well', 'ug_per_ml', 'ug_per_biopsy',
-                                'ug_per_cm2', 'r_squared','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
+                                'ug_per_cm2', 'r_squared','data_check','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
         
         all_results = all_results[all_results_columns]
-        all_results.to_csv(folder_path + '/' + 'combned_raw_data.csv')
+        all_results.to_csv(folder_path + '/' + 'combined_raw_data.csv')
    
         
         # ----------------------- output only unique id average results -----------------------------------
@@ -145,8 +148,7 @@ def processing(folder_name):
         avg_results_column = ['dna_sid', 'experiment_id',
                             'sample_id', 'sample_type', 'description', 'sample_diameter_mm',
                             'digestion_volume_ul', 'digested_sample_volume_ul', 'buffer_volume_ul',
-                            'dilution_factor', 'assay_volume_ul', 'std_conc_ng_per_well',
-                            'biopsy_region', 'culture_duration_days', 'master_well_plate_location','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
+                            'dilution_factor', 'assay_volume_ul','biopsy_region', 'culture_duration_days', 'master_well_plate_location','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
         
         unique_sample_avg_results = unique_sample_avg_results[avg_results_column]
         unique_sample_avg_results.to_csv(folder_path + '/' + 'averaged_data.csv')
@@ -167,14 +169,56 @@ def reprocessing(folder_name):
         # # Print the file names in the current subfolder
         # for file_name in os.listdir(folder_path):
         #     print(f" - {file_name}")
-            raw_data_combined = pd.read_csv(folder_path + '/' + 'combined_raw_data.csv')
-
-            # remove the index column name
-            columns = raw_data_combined.iloc[:,1:].columns
+            raw_data_combined = pd.read_csv(folder_path + '/' + 'combined_raw_data.csv').iloc[:,1:26] # remove unnamed index and averaged results first
+            
         except:
-            raise Exception('files not found, process the folder first')
-    
-        combined_raw_data_list_rp = []
+           print(traceback.format_exc())        
+
+
+        # reprocess all the plates at once
+        omitted, standard, samples = recalculate(raw_data_combined,folder_path)
+
+            # stack outputs
+        stacked_data = pd.concat([omitted, standard, samples], axis=0)
+        stacked_data.reset_index()
+
+
+        # combined_raw_data retains omitted samples even though it wasnt part of calc, so need to omit the samples before calculate averages
+        combined_raw_data_df_filtered = raw_data_combined[raw_data_combined['data_check'].isnull()]
+        averaged_results = calculate_sample_averages(combined_raw_data_df_filtered)
+
+        # save averaged results first
+        averaged_results.to_csv(folder_path + '/' + 'averaged_data.csv')
+
+        # ----------------------merge individual + average results together -----------------------------------
+        
+        # drop duplicated column on stacked data (raw data) first
+        stacked_data = stacked_data.drop(['sample_id', 'sample_replicate'],axis=1)
+
+        all_results = pd.merge(averaged_results,stacked_data, on = 'dna_sid', how='outer')
+
+        all_results_columns = ['dna_sid', 'experiment_id',
+                                'sample_id', 'sample_type', 'description', 'sample_replicate',
+                                'sample_diameter_mm', 'digestion_volume_ul',
+                                'digested_sample_volume_ul', 'buffer_volume_ul', 'dilution_factor',
+                                'assay_volume_ul', 'std_conc_ng_per_well', 'biopsy_region',
+                                'culture_duration_days', 'master_well_plate_location', 'abs',
+                                'sheet_name', 'location', 'ng_per_well', 'ug_per_ml', 'ug_per_biopsy',
+                                'ug_per_cm2', 'r_squared','data_check','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
+
+        all_results = all_results[all_results_columns]
+        all_results.to_csv(folder_path + '/' + 'combined_raw_data.csv')
+        
+        # --------------------------- extract only averaged results from combined_raw_data __________________________
+        avg_results_column = ['dna_sid', 'experiment_id',
+                            'sample_id', 'sample_type', 'description', 'sample_diameter_mm',
+                            'digestion_volume_ul', 'digested_sample_volume_ul', 'buffer_volume_ul',
+                            'dilution_factor', 'assay_volume_ul','biopsy_region', 'culture_duration_days', 'master_well_plate_location','avg_ug_per_cm2', 'avg_ug_per_cm2_std']
+        
+        unique_sample_avg_results = all_results.drop_duplicates(subset=['dna_sid'])
+        unique_sample_avg_results = unique_sample_avg_results[unique_sample_avg_results['sample_type'] == 'sample']
+        unique_sample_avg_results = unique_sample_avg_results[avg_results_column]
+        unique_sample_avg_results.to_csv(folder_path + '/' + 'averaged_data.csv')
        
 
 
@@ -182,5 +226,4 @@ if __name__ == "__main__":
     # user_input = input('enter experiment name for calculating')
     # if user_input is not None:
     #     processing(user_input)
-    processing('DNA74')
-
+    reprocessing('DNA74')

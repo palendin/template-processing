@@ -79,25 +79,23 @@ def calculate_sample_averages(combined_raw_data):
         average_per_sample['avg_ug_per_cm2_std'] = average_per_sample_std['avg_ug_per_cm2_std']
     else:
         print('no samples to calculate results')
-        biopsy_mean = None
+        average_per_sample = None
 
     return average_per_sample
 
-def recalculate(combined_raw_data, save_img_path, plate):
+def recalculate(combined_raw_data, save_img_path):
 
-    if len(combined_raw_data[combined_raw_data['data check'] == 'o']) == 0:
-        print(f'{plate} does not need for recalculation')
+    if len(combined_raw_data[combined_raw_data['data_check'] == 'o']) == 0:
+        print('file does not need for recalculation')
     
     # keep omitted samples for tracking purposes
-    omitted_data = combined_raw_data[(combined_raw_data['sheet_name'] == plate) & (combined_raw_data['data check'] == 'o')]
+    omitted_data = combined_raw_data[combined_raw_data['data_check'] == 'o']
 
     # keep retained data for recalculation
-    retained_data = combined_raw_data[(combined_raw_data['sheet_name'] == plate) & (combined_raw_data['data check'].isnull())]
+    retained_data = combined_raw_data[(combined_raw_data['data_check'].isnull())]
 
-    # output only raw data columns 1 - 27 before recalculating
-    retained_data = retained_data.iloc[:,0:28]
+    # output only raw data columns before recalculating
+    retained_data = retained_data.iloc[:,0:26]
+    standard, samples = DNA_assay_calc(retained_data, save_img_path)
 
-    plate_number = plate[-1] + ' reprocessed'
-    standard, samples, control = DNA_assay_calc(retained_data, save_img_path, plate_number)
-
-    return omitted_data, standard, samples, control 
+    return omitted_data, standard, samples
