@@ -128,10 +128,11 @@ def processing(folder_name):
             
             # append outputs
             combined_raw_data_list.append(raw_data_combined)
+    
             #biopsy_results.append(result_list)
         
         # combine the appended list of dataframes containing multiple headers with single row of header
-        combined_raw_data_df = pd.concat(combined_raw_data_list, ignore_index=True)[raw_data_combined.columns]
+        combined_raw_data_df = pd.concat(combined_raw_data_list, ignore_index=True)[combined_raw_data_list[0].columns]
 
         # fix culture date column to a date format, subtract 2 days due to excel start date reference. Then convert into mm-dd-yyyy
         start_date = pd.to_datetime('01-01-1900')
@@ -292,7 +293,7 @@ if __name__ == "__main__":
     # if user_input is not None:
     #     processing(user_input)
 
-    processing('HP82')
+    processing('HP71')
 
 
 # hp_sid and sample id are more important
