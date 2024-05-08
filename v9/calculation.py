@@ -198,7 +198,8 @@ def calculate_sample_averages(combined_raw_data):
         # calculate average for solid samples
         if len(solid_samples) > 0:
             print(f'calculating {len(solid_samples)} solid samples')
-    
+
+            print(solid_samples)
             # -- average result of each sample (trimming) --
             average_per_sample = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min())/(len(x)-2)) if len(x) > 2 else x['mg/biopsy'].mean()).reset_index(name='avg mg/biopsy')
             average_mg_per_ml = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/ml'].sum()- x['mg/ml'].max()-x['mg/ml'].min())/(len(x)-2)) if len(x) > 2 else x['mg/ml'].mean()).reset_index(name='avg mg/ml')
