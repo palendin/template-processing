@@ -66,7 +66,6 @@ def processing(folder_name):
                         df = df.melt()['value'].str.split(',',expand=True)
                     except:
                         continue
-
                     # replace header with renamed column names
                     for i, col_name in enumerate(df.columns):
                         df.rename(columns = {col_name: column_names[i]}, inplace = True)
@@ -293,7 +292,7 @@ if __name__ == "__main__":
     # if user_input is not None:
     #     processing(user_input)
 
-    processing('HP120')
+    processing('HP185')
 
 
 # hp_sid and sample id are more important
