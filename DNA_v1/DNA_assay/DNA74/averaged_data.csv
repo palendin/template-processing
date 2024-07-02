@@ -1,5 +1,0 @@
-,dna_sid,experiment_id,sample_id,sample_type,description,sample_diameter_mm,digestion_volume_ul,digested_sample_volume_ul,buffer_volume_ul,dilution_factor,assay_volume_ul,biopsy_region,culture_duration_days,master_well_plate_location,avg_ug_per_cm2,avg_ug_per_cm2_std
-0,DNA74-1,DNA74-20240126,B6-1,sample,EXP59A-B6,8.0,500.0,10.0,390.0,40.0,20.0,,,,46.25920459409078,1.8902289140305555
-1,DNA74-2,DNA74-20240126,C6-4,sample,EXP59A-C6,8.0,500.0,10.0,390.0,40.0,20.0,,,,44.38502133615288,0.9304795502755263
-2,DNA74-3,DNA74-20240126,B5-4,sample,EXP59A-B5,8.0,500.0,20.0,0.0,1.0,20.0,,,,0.08574810185338254,0.011798268515836074
-3,DNA74-4,DNA74-20240126,B6-4,sample,EXP59A-B6,8.0,500.0,20.0,0.0,1.0,20.0,,,,0.41685140243912167,0.005377790224594864
