@@ -1,4 +1,5 @@
-# convert matrix (96 well plate format) into dataframe
+# python 3.9.6
+
 import pandas as pd
 import os
 from calculation import *
@@ -292,7 +293,7 @@ if __name__ == "__main__":
     # if user_input is not None:
     #     processing(user_input)
 
-    processing('HP185')
+    processing('HP213')
 
 
 # hp_sid and sample id are more important
