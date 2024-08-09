@@ -234,7 +234,6 @@ def reprocessing(folder_name):
             # combine the appended dataframe with multiple header columns into 1 single header column
             combined_raw_data_df = pd.concat(combined_raw_data_list_rp, ignore_index=True, join='outer')[columns]
          
-            
             # combined_raw_data retains omitted samples even though it wasnt part of calc, so need to omit the samples again and calculate biopsy results
             combined_raw_data_df_filtered = combined_raw_data_df[combined_raw_data_df['data check'].isnull()]
             
