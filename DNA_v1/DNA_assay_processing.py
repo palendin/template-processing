@@ -32,7 +32,7 @@ def processing(folder_name):
         #     print(f" - {file_name}")
             sample_layout = pd.read_excel(folder_path+'/' + 'sample_layout.xlsx',engine='openpyxl',sheet_name=None, skiprows=0) #skip the first row which is the indexes of the well
             measurements = pd.read_excel(folder_path+'/' + 'abs_reading.xlsx',engine='openpyxl',sheet_name=None, skiprows=0) #skip the first row which is the indexes of the well
-         
+            print(measurements)
         except:
             print(traceback.format_exc())
         
@@ -76,7 +76,6 @@ def processing(folder_name):
         # loop through each sheet in excel file
         for i, sheet_name in enumerate(measurements):
             if sheet_name == 'Plate' + str(i):
-
                 # ignore 1st row and 1st column (recall first row is skipped already)
                 df = measurements[sheet_name].iloc[0:,1:]
                 df = df.values
@@ -100,7 +99,7 @@ def processing(folder_name):
 
                 # put dataframes into a list
                 abs_df_list.append(df_converted)
-
+        
         # ----------------------- combine sample layout and absorbance -------------------
 
         combined_layout = pd.concat(layout_df_list, axis=0)
@@ -226,4 +225,4 @@ if __name__ == "__main__":
     # user_input = input('enter experiment name for calculating')
     # if user_input is not None:
     #     processing(user_input)
-    reprocessing('DNA74')
+    processing('DNA161')

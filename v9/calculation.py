@@ -144,9 +144,9 @@ def calculate_sample_averages(combined_raw_data):
             average_mg_cm2_per_sample = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID','biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: ((x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min())/(len(x)-2)) if len(x) > 2 else x['mg/cm2'].mean()).reset_index(name='avg mg/cm2')
             
             # calculate std
-            avg_mg_per_biopsy_std = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: ((x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min())/(len(x)-2)) if len(x) > 2 else x['mg/biopsy'].std()).reset_index(name='mg/biopsy std')
-            avg_mg_per_ml_std = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: ((x['mg/ml'].sum()- x['mg/ml'].max()-x['mg/ml'].min())/(len(x)-2)) if len(x) > 2 else x['mg/ml'].std()).reset_index(name='mg/ml std')
-            avg_mg_per_cm2_std = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID','biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: ((x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min())/(len(x)-2)) if len(x) > 2 else x['mg/cm2'].std()).reset_index(name='mg/cm2 std')
+            avg_mg_per_biopsy_std = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: (x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min()).std() if len(x) > 2 else x['mg/biopsy'].std()).reset_index(name='mg/biopsy std')
+            avg_mg_per_ml_std = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: (x['mg/ml'].sum()- x['mg/ml'].max()-x['mg/ml'].min()).std() if len(x) > 2 else x['mg/ml'].std()).reset_index(name='mg/ml std')
+            avg_mg_per_cm2_std = liquid_samples.groupby(['HP_sid','experiment_ID','sample_ID','biopsy_id','biopsy_replicate'], squeeze=True).apply(lambda x: (x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min()).std() if len(x) > 2 else x['mg/cm2'].std()).reset_index(name='mg/cm2 std')
 
             # add columns to dataframe
             average_per_sample['mg/biopsy std'] = avg_mg_per_biopsy_std['mg/biopsy std']
@@ -198,16 +198,16 @@ def calculate_sample_averages(combined_raw_data):
         # calculate average for solid samples
         if len(solid_samples) > 0:
             print(f'calculating {len(solid_samples)} solid samples')
-    
+
             # -- average result of each sample (trimming) --
             average_per_sample = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min())/(len(x)-2)) if len(x) > 2 else x['mg/biopsy'].mean()).reset_index(name='avg mg/biopsy')
             average_mg_per_ml = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/ml'].sum()- x['mg/ml'].max()-x['mg/ml'].min())/(len(x)-2)) if len(x) > 2 else x['mg/ml'].mean()).reset_index(name='avg mg/ml')
             average_mg_cm2_per_sample = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min())/(len(x)-2)) if len(x) > 2 else x['mg/cm2'].mean()).reset_index(name='avg mg/cm2')
             
             # calculate std
-            avg_mg_per_biopsy_std = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min())/(len(x)-2)) if len(x) > 2 else x['mg/biopsy'].std()).reset_index(name='mg/biopsy std')
-            avg_mg_per_ml_std = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/ml'].sum()- x['mg/ml'].max()-x['mg/ml'].min())/(len(x)-2)) if len(x) > 2 else x['mg/ml'].std()).reset_index(name='mg/ml std')
-            avg_mg_per_cm2_std = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: ((x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min())/(len(x)-2)) if len(x) > 2 else x['mg/cm2'].std()).reset_index(name='mg/cm2 std')
+            avg_mg_per_biopsy_std = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: (x['mg/biopsy'].sum()- x['mg/biopsy'].max()-x['mg/biopsy'].min()).std() if len(x) > 2 else x['mg/biopsy'].std()).reset_index(name='mg/biopsy std')
+            avg_mg_per_ml_std = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID', 'biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: (x['mg/ml'].sum()- x['mg/ml'].max()-x['mg/ml'].min()).std() if len(x) > 2 else x['mg/ml'].std()).reset_index(name='mg/ml std')
+            avg_mg_per_cm2_std = solid_samples.groupby(['HP_sid','experiment_ID','sample_ID','biopsy_id','biopsy_replicate','biomaterial_id'], squeeze=True).apply(lambda x: (x['mg/cm2'].sum()- x['mg/cm2'].max()-x['mg/cm2'].min()).std() if len(x) > 2 else x['mg/cm2'].std()).reset_index(name='mg/cm2 std')
 
             # add columns to dataframe
             average_per_sample['mg/biopsy std'] = avg_mg_per_biopsy_std['mg/biopsy std']
