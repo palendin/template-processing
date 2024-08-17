@@ -132,17 +132,12 @@ def processing(folder_name):
         averaged_results = calculate_sample_averages(combined_raw_data_df)
 
         # drop columns before merging
-        averaged_results = averaged_results.drop(['sample_id', 'sample_replicate'], axis=1)
+        # averaged_results = averaged_results.drop(['sample_id', 'sample_replicate'], axis=1)
 
         # ----------------------- output individual + average results together -----------------------------------
-
-        display_columns = ['dna_sid','experiment_id','sample_id','sample_type','description','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
-                        'buffer_volume_ul','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
         
-        sample_layout = sample_layout['Samples'].iloc[:,0:16][display_columns]
-        
-        merged_averaged_results = pd.merge(averaged_results, samples, on='dna_sid', how='outer')
-        all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer').reset_index(drop=True)
+        all_results = pd.merge(averaged_results, combined_raw_data_df, on='dna_sid', how='outer')
+        #all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer').reset_index(drop=True)
         
         all_results_columns = ['dna_sid', 'experiment_id',
                                 'sample_id', 'sample_type', 'description', 'sample_replicate',
@@ -158,6 +153,11 @@ def processing(folder_name):
    
         
         # ----------------------- output only unique id average results -----------------------------------
+        display_columns = ['dna_sid','experiment_id','sample_id','sample_type','description','sample_diameter_mm','digestion_volume_ul','digested_sample_volume_ul',
+                        'buffer_volume_ul','dilution_factor','assay_volume_ul','std_conc_ng_per_well','biopsy_region','culture_duration_days','master_well_plate_location']
+        
+        sample_layout = sample_layout['Samples'].iloc[:,0:16][display_columns]
+
         unique_sample_avg_results = pd.merge(averaged_results, sample_layout, on='dna_sid', how='inner')
         
         avg_results_column = ['dna_sid', 'experiment_id',
@@ -207,24 +207,24 @@ def reprocessing(folder_name):
             combined_raw_data_list_rp.append(stacked_data)
     
         if combined_raw_data_list_rp is not None:
-        # combine the appended dataframe with multiple header columns into 1 single header column
+            # combine the appended dataframe with multiple header columns into 1 single header column
             combined_raw_data_df = pd.concat(combined_raw_data_list_rp, ignore_index=True, join='outer')[columns]
 
             # combined_raw_data retains omitted samples even though it wasnt part of calc, so need to omit the samples before calculate averages
-            combined_raw_data_df_filtered = raw_data_combined[raw_data_combined['data_check'].isnull()]
+            combined_raw_data_df_filtered = combined_raw_data_df[combined_raw_data_df['data_check'].isnull()]
 
             averaged_results = calculate_sample_averages(combined_raw_data_df_filtered)
 
             # save averaged results first
-            averaged_results.to_csv(folder_path + '/' + 'averaged_data.csv')
+            # averaged_results.to_csv(folder_path + '/' + 'averaged_data.csv')
 
             
             # ----------------------merge individual + average results together -----------------------------------
             
-            # drop duplicated column on stacked data (raw data) first
-            stacked_data = stacked_data.drop(['sample_id', 'sample_replicate'],axis=1)
+            # drop duplicated column on raw data first
+            # raw_data = stacked_data.drop(['sample_id', 'sample_replicate'],axis=1)
 
-            all_results = pd.merge(averaged_results,stacked_data, on = 'dna_sid', how='outer')
+            all_results = pd.merge(averaged_results,combined_raw_data_df, on = 'dna_sid', how='outer')
 
             all_results_columns = ['dna_sid', 'experiment_id',
                                     'sample_id', 'sample_type', 'description', 'sample_replicate',
