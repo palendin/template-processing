@@ -112,7 +112,7 @@ def processing(folder_name):
 
         for i, layout_abs_df in enumerate(zipped_df_list):
             # add data check column for omission
-            layout_abs_df['data check'] = ''
+            layout_abs_df['data_check'] = ''
 
             # run calculation. i = dataframe number in the zipped list of dataframes, also is the plate number
             standard, samples = DNA_assay_calc(layout_abs_df, folder_path,i+1)
@@ -127,18 +127,19 @@ def processing(folder_name):
 
         # combine the appended list of dataframes containing multiple headers with single row of header
         combined_raw_data_df = pd.concat(combined_raw_data_list, ignore_index=True)[raw_data_combined.columns]
+        
 
         # calculate average results
         averaged_results = calculate_sample_averages(combined_raw_data_df)
 
-        # drop columns before merging
-        # averaged_results = averaged_results.drop(['sample_id', 'sample_replicate'], axis=1)
-
         # ----------------------- output individual + average results together -----------------------------------
+        
+        # drop columns before merging
+        averaged_results = averaged_results.drop(['sample_id', 'sample_replicate'], axis=1)
         
         all_results = pd.merge(averaged_results, combined_raw_data_df, on='dna_sid', how='outer')
         #all_results = pd.concat([merged_averaged_results,standard],axis=0, join='outer').reset_index(drop=True)
-        
+    
         all_results_columns = ['dna_sid', 'experiment_id',
                                 'sample_id', 'sample_type', 'description', 'sample_replicate',
                                 'sample_diameter_mm', 'digestion_volume_ul',
@@ -184,7 +185,7 @@ def reprocessing(folder_name):
         # # Print the file names in the current subfolder
         # for file_name in os.listdir(folder_path):
         #     print(f" - {file_name}")
-            raw_data_combined = pd.read_csv(folder_path + '/' + 'combined_raw_data.csv').iloc[:,1:26] # remove unnamed index and averaged results first
+            raw_data_combined = pd.read_csv(folder_path + '/' + 'combined_raw_data.csv').iloc[:,0:26] # remove unnamed index and averaged results first
             columns = raw_data_combined.iloc[:,1:26].columns
             
         except:
@@ -215,6 +216,7 @@ def reprocessing(folder_name):
 
             averaged_results = calculate_sample_averages(combined_raw_data_df_filtered)
 
+
             # save averaged results first
             # averaged_results.to_csv(folder_path + '/' + 'averaged_data.csv')
 
@@ -222,7 +224,7 @@ def reprocessing(folder_name):
             # ----------------------merge individual + average results together -----------------------------------
             
             # drop duplicated column on raw data first
-            # raw_data = stacked_data.drop(['sample_id', 'sample_replicate'],axis=1)
+            averaged_results = averaged_results.drop(['sample_id', 'sample_replicate'],axis=1)
 
             all_results = pd.merge(averaged_results,combined_raw_data_df, on = 'dna_sid', how='outer')
 
