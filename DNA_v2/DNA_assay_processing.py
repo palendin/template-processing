@@ -257,4 +257,4 @@ if __name__ == "__main__":
     # user_input = input('enter experiment name for calculating')
     # if user_input is not None:
     #     processing(user_input)
-    reprocessing('DNA74')
+    processing('DNA288')
